@@ -1,0 +1,319 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Noto+Serif:wght@700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#085041;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --red:#A32D2D;--red-light:#FCEBEB;
+  --blue:#185FA5;--blue-light:#E6F1FB;
+  --gray:#5F5E5A;--gray-light:#F1EFE8;
+  --bg:var(--color-background-primary,#fff);
+  --bg2:var(--color-background-secondary,#f7f6f2);
+  --border:var(--color-border-tertiary,rgba(0,0,0,0.12));
+  --text:var(--color-text-primary,#1a1a18);
+  --muted:var(--color-text-secondary,#5F5E5A);
+}
+body{font-family:'Noto Sans',sans-serif;background:transparent;color:var(--text);font-size:14px}
+
+.app{max-width:380px;margin:0 auto;background:var(--bg);border:0.5px solid var(--border);border-radius:16px;overflow:hidden;min-height:600px;display:flex;flex-direction:column}
+.topbar{background:var(--green-dark);color:#fff;padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between}
+.topbar-title{font-family:'Noto Serif',serif;font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.topbar-sub{font-size:11px;opacity:0.75;margin-top:2px}
+.live-dot{width:8px;height:8px;background:#5DCAA5;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;margin-right:4px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.tabs{display:flex;border-bottom:0.5px solid var(--border);background:var(--bg)}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.tab-icon{font-size:16px;display:block;margin-bottom:2px}
+
+.content{flex:1;overflow-y:auto;padding:12px}
+
+.section-title{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;margin:0 0 10px}
+
+/* Route timeline */
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--border)}
+.stop{position:relative;margin-bottom:0;padding:0 0 14px}
+.stop-dot{position:absolute;left:-22px;width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;top:2px;z-index:1}
+.stop-dot.passed{background:var(--green);border-color:var(--green)}
+.stop-dot.current{background:#fff;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,0.2)}
+.stop-dot.current::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);position:absolute}
+.stop-dot.upcoming{background:var(--bg);border-color:var(--border)}
+.stop-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;transition:border-color 0.2s}
+.stop-card:hover{border-color:var(--green)}
+.stop-card.highlight{border-color:var(--green);background:var(--green-light)}
+.stop-name{font-weight:500;font-size:13px;color:var(--text)}
+.stop-meta{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.stop-eta{font-size:12px;color:var(--green);font-weight:500}
+.stop-eta.amber{color:var(--amber)}
+.stop-passed-label{font-size:11px;color:var(--muted)}
+.stop-reporter{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-top:4px;padding-top:4px;border-top:0.5px solid var(--border)}
+.avatar{width:16px;height:16px;border-radius:50%;background:var(--green-light);color:var(--green-dark);font-size:9px;font-weight:500;display:inline-flex;align-items:center;justify-content:center}
+
+/* Ping screen */
+.ping-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.ping-label{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500}
+.ping-select{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235F5E5A' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.ping-btn{width:100%;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;font-family:'Noto Sans',sans-serif;transition:opacity 0.2s}
+.ping-btn:active{opacity:0.8}
+.btn-green{background:var(--green);color:#fff}
+.btn-amber{background:var(--amber-light);color:var(--amber);border:0.5px solid var(--amber)}
+.btn-red{background:var(--red-light);color:var(--red);border:0.5px solid var(--red)}
+.name-input{width:100%;padding:10px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);font-family:'Noto Sans',sans-serif;margin-bottom:8px}
+.toast{background:var(--green-dark);color:#fff;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px;animation:fadeIn 0.3s ease}
+.toast-red{background:var(--red);color:#fff}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Alert screen */
+.alert-card{border-radius:10px;padding:12px;margin-bottom:10px;border:0.5px solid}
+.alert-card.canceled{background:var(--red-light);border-color:var(--red);color:var(--red)}
+.alert-card.info{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.alert-card.crowded{background:var(--amber-light);border-color:var(--amber);color:var(--amber)}
+.alert-title{font-weight:500;font-size:13px}
+.alert-body{font-size:12px;margin-top:4px;opacity:0.85}
+.alert-meta{font-size:11px;margin-top:6px;opacity:0.7}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:var(--bg2);border-radius:10px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:500;color:var(--green)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Marquee banner */
+.marquee-wrap{background:var(--green-dark);overflow:hidden;padding:5px 0}
+.marquee{display:flex;animation:scroll 18s linear infinite;white-space:nowrap;gap:32px}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-text{font-size:11px;color:rgba(255,255,255,0.8);padding:0 8px}
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">&#127764; Grama-Yatri</div>
+      <div class="topbar-sub">Community Bus Tracker · Route NH-7</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;opacity:0.75"><span class="live-dot"></span>Live</div>
+      <div style="font-size:12px;font-weight:500;margin-top:2px" id="clock"></div>
+    </div>
+  </div>
+
+  <div class="marquee-wrap">
+    <div class="marquee">
+      <span class="marquee-text">&#9998; Ravi pinged bus at Kothapalli — 2 min ago</span>
+      <span class="marquee-text">&#9888; Morning bus delayed by ~10 mins today</span>
+      <span class="marquee-text">&#9998; Lakshmi reported bus passed Nadivada — 8 min ago</span>
+      <span class="marquee-text">&#9878; 14 passengers on route right now</span>
+      <span class="marquee-text">&#9998; Ravi pinged bus at Kothapalli — 2 min ago</span>
+      <span class="marquee-text">&#9888; Morning bus delayed by ~10 mins today</span>
+      <span class="marquee-text">&#9998; Lakshmi reported bus passed Nadivada — 8 min ago</span>
+      <span class="marquee-text">&#9878; 14 passengers on route right now</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('route',this)"><span class="tab-icon">&#128652;</span>Route</div>
+    <div class="tab" onclick="switchTab('ping',this)"><span class="tab-icon">&#128276;</span>Ping</div>
+    <div class="tab" onclick="switchTab('alerts',this)"><span class="tab-icon">&#9888;</span>Alerts</div>
+  </div>
+
+  <div class="content" id="tab-route">
+    <div class="section-title">Live Route · Kothapalli → Vijayawada</div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num" id="eta-stat">~18</div><div class="stat-label">min to your stop</div></div>
+      <div class="stat-box"><div class="stat-num">14</div><div class="stat-label">passengers pinging</div></div>
+    </div>
+    <div class="timeline" id="route-timeline"></div>
+  </div>
+
+  <div class="content" id="tab-ping" style="display:none">
+    <div id="toast-area"></div>
+    <div class="ping-card">
+      <div class="ping-label">Your name</div>
+      <input class="name-input" id="pinger-name" placeholder="Enter your name (e.g. Ravi)" value="">
+      <div class="ping-label">Your current stop</div>
+      <select class="ping-select" id="ping-stop"></select>
+    </div>
+    <div class="ping-card">
+      <div class="ping-label">What happened?</div>
+      <button class="ping-btn btn-green" onclick="doPing('onbus')">&#128652; I am ON the bus now</button>
+      <button class="ping-btn btn-amber" onclick="doPing('passed')">&#128064; Bus just passed my stop</button>
+      <button class="ping-btn btn-red" onclick="doPing('canceled')">&#10060; Morning bus is CANCELED today</button>
+    </div>
+    <div class="ping-card" style="padding:12px">
+      <div class="ping-label">Recent pings</div>
+      <div id="ping-log"></div>
+    </div>
+  </div>
+
+  <div class="content" id="tab-alerts" style="display:none">
+    <div class="section-title">Community Alerts</div>
+    <div id="alerts-list"></div>
+    <div class="section-title" style="margin-top:12px">Today's Stats</div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num">6</div><div class="stat-label">total pings today</div></div>
+      <div class="stat-box"><div class="stat-num">3</div><div class="stat-label">active reporters</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num" style="color:var(--amber)">+10</div><div class="stat-label">min delay reported</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--green)">92%</div><div class="stat-label">accuracy this week</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const stops=[
+  {name:"Kothapalli",dist:0},
+  {name:"Nadivada",dist:8},
+  {name:"Penuganchiprolu",dist:15},
+  {name:"Tiruvuru",dist:26},
+  {name:"Jaggayyapeta",dist:38},
+  {name:"Nandigama",dist:48},
+  {name:"Ibrahimpatnam",dist:62},
+  {name:"Vijayawada",dist:75}
+];
+const AVG_SPEED=22;
+let busStop=1;
+let lastPingTime=Date.now()-2*60000;
+let lastPinger="Ravi";
+let lastPingType="onbus";
+let userStop=4;
+let pings=[
+  {name:"Ravi",stop:"Kothapalli",type:"onbus",time:"8:02 AM"},
+  {name:"Lakshmi",stop:"Nadivada",type:"passed",time:"8:10 AM"}
+];
+let alerts=[
+  {type:"info",title:"Bus running ~10 mins late",body:"Reported by Suresh at Kothapalli stand.",meta:"Today 7:48 AM"},
+  {type:"canceled",title:"Evening 6 PM bus canceled",body:"Reported by driver via community group. Next bus at 9 PM.",meta:"Today 5:30 AM"},
+  {type:"crowded",title:"Morning bus is very crowded",body:"Reported by Anitha — students board at Jaggayyapeta.",meta:"Yesterday"}
+];
+
+function getETA(fromStopIdx,toStopIdx){
+  if(toStopIdx<=fromStopIdx)return null;
+  const kmDiff=stops[toStopIdx].dist-stops[fromStopIdx].dist;
+  return Math.round(kmDiff/AVG_SPEED*60);
+}
+
+function renderRoute(){
+  const tl=document.getElementById('route-timeline');
+  tl.innerHTML='';
+  stops.forEach((s,i)=>{
+    const passed=i<busStop;
+    const current=i===busStop;
+    const upcoming=i>busStop;
+    const eta=upcoming?getETA(busStop,i):null;
+    const highlight=i===userStop;
+    const div=document.createElement('div');
+    div.className='stop';
+    let dotClass=passed?'passed':current?'current':'upcoming';
+    let etaHtml='';
+    if(passed)etaHtml=`<span class="stop-passed-label">&#10003; Passed</span>`;
+    else if(current)etaHtml=`<span class="stop-eta">Bus is here now</span>`;
+    else etaHtml=`<span class="stop-eta ${eta>20?'amber':''}">ETA ~${eta} min</span>`;
+    let reporterHtml='';
+    if(i===busStop)reporterHtml=`<div class="stop-reporter"><span class="avatar">${lastPinger.slice(0,2).toUpperCase()}</span>Reported by ${lastPinger} · ${Math.round((Date.now()-lastPingTime)/60000)} min ago</div>`;
+    div.innerHTML=`
+      <div class="stop-dot ${dotClass}"></div>
+      <div class="stop-card ${highlight?'highlight':''}">
+        <div class="stop-meta"><span class="stop-name">${s.name}${highlight?' &#127968;':''}</span>${etaHtml}</div>
+        ${reporterHtml}
+      </div>`;
+    tl.appendChild(div);
+  });
+  const myEta=getETA(busStop,userStop);
+  document.getElementById('eta-stat').textContent=myEta?`~${myEta}`:'Here!';
+}
+
+function populatePingStops(){
+  const sel=document.getElementById('ping-stop');
+  stops.forEach((s,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i;opt.textContent=s.name;
+    if(i===userStop)opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+
+function renderPingLog(){
+  const el=document.getElementById('ping-log');
+  el.innerHTML=pings.slice().reverse().map(p=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border)">
+      <div class="avatar" style="width:24px;height:24px;font-size:11px;flex-shrink:0">${p.name.slice(0,2).toUpperCase()}</div>
+      <div>
+        <span style="font-weight:500;font-size:12px">${p.name}</span>
+        <span style="color:var(--muted);font-size:12px"> at ${p.stop}</span>
+        <div style="font-size:11px;color:var(--muted)">${p.type==='onbus'?'Boarded bus':p.type==='passed'?'Bus passed stop':'Reported cancellation'} · ${p.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function doPing(type){
+  const name=document.getElementById('pinger-name').value.trim()||'Passenger';
+  const stopIdx=parseInt(document.getElementById('ping-stop').value);
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  pings.push({name,stop:stops[stopIdx].name,type,time:timeStr});
+  if(type!=='canceled'){
+    busStop=stopIdx;
+    lastPinger=name;
+    lastPingTime=Date.now();
+    lastPingType=type;
+  }
+  const toast=document.getElementById('toast-area');
+  const cls=type==='canceled'?'toast toast-red':'toast';
+  let msg=type==='onbus'?`&#128652; ${name} pinged bus at ${stops[stopIdx].name}!`:
+          type==='passed'?`&#128064; Bus passed ${stops[stopIdx].name} — ETAs updated!`:
+          `&#10060; Cancellation reported by ${name}`;
+  toast.innerHTML=`<div class="${cls}">${msg}</div>`;
+  setTimeout(()=>{toast.innerHTML=''},3500);
+  renderRoute();
+  renderPingLog();
+  if(type==='canceled'){
+    alerts.unshift({type:'canceled',title:'Bus canceled — user report',body:`Reported by ${name} at ${stops[stopIdx].name}.`,meta:`Just now`});
+    renderAlerts();
+  }
+}
+
+function renderAlerts(){
+  document.getElementById('alerts-list').innerHTML=alerts.map(a=>`
+    <div class="alert-card ${a.type}">
+      <div class="alert-title">${a.type==='canceled'?'&#10060;':a.type==='crowded'?'&#9888;':'&#8505;'} ${a.title}</div>
+      <div class="alert-body">${a.body}</div>
+      <div class="alert-meta">${a.meta}</div>
+    </div>`).join('');
+}
+
+function switchTab(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['route','ping','alerts'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+function simulateLivePing(){
+  const reporters=['Suresh','Anitha','Kumar','Meena'];
+  const types=['onbus','passed'];
+  const r=reporters[Math.floor(Math.random()*reporters.length)];
+  const t=types[Math.floor(Math.random()*2)];
+  const si=Math.min(busStop+1,stops.length-1);
+  if(si>busStop&&si<stops.length){
+    busStop=si;lastPinger=r;lastPingTime=Date.now();
+    const now=new Date();
+    pings.push({name:r,stop:stops[si].name,type:t,time:now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})});
+    renderRoute();renderPingLog();
+  }
+}
+
+updateClock();setInterval(updateClock,1000);
+renderRoute();
+populatePingStops();
+renderPingLog();
+renderAlerts();
+setInterval(simulateLivePing,25000);
+</script>
